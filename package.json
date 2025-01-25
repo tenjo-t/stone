@@ -1,0 +1,54 @@
+{
+  "name": "@tenjo-t/stone",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "tenjo-t <tenjo0314takashi@gmail.com>",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "stone": "./dist/node/cli.js"
+  },
+  "scripts": {
+    "dev": "rimraf dist && pnpm --stream \"/^dev:(client|node)$/\"",
+    "dev:client": "tsc --sourcemap -w --preserveWatchOutput -p src/client",
+    "dev:node": "npm run build:node -- -w",
+    "build": "rimraf dist && pnpm build:client && pnpm build:node",
+    "build:client": "tsc -p src/client",
+    "build:node": "rollup --config rollup.config.ts --configPlugin esbuild",
+    "docs": "pnpm --stream \"/^(docs:)?dev$/\"",
+    "docs:dev": "wait-on -d 100 dist/node/cli.js && pnpm -F=docs dev",
+    "docs:build": "pnpm build && pnpm docs:build:only",
+    "docs:build:only": "pnpm -F=docs build",
+    "docs:preview": "pnpm -F=docs preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/shared": "^3.5.13",
+    "vite": "^6.0.1",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@polka/compression": "^1.0.0-next.28",
+    "@rollup/plugin-json": "^6.1.0",
+    "@types/debug": "^4.1.12",
+    "@types/fs-extra": "^11.0.4",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^22.10.1",
+    "debug": "^4.3.7",
+    "fs-extra": "^11.2.0",
+    "minimist": "^1.2.8",
+    "ora": "^8.1.1",
+    "p-map": "^7.0.3",
+    "polka": "^1.0.0-next.28",
+    "prettier": "^3.4.1",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.28.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "sirv": "^3.0.0",
+    "tinyglobby": "^0.2.10",
+    "typescript": "^5.7.2",
+    "wait-on": "^8.0.1"
+  },
+  "packageManager": "pnpm@9.14.4+sha512.c8180b3fbe4e4bca02c94234717896b5529740a6cbadf19fa78254270403ea2f27d4e1d46a08a0f56c89b63dc8ebfd3ee53326da720273794e6200fcf0d184ab"
+}

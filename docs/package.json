@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "docs",
+  "type": "module",
+  "scripts": {
+    "dev": "stone dev",
+    "build": "stone build",
+    "preview": "stone preview"
+  },
+  "devDependencies": {
+    "@tenjo-t/stone": "workspace:*"
+  }
+}

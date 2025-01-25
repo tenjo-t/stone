@@ -1,0 +1,3 @@
+# Stone
+
+Static site generator.
