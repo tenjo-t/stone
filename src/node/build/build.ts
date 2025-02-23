@@ -1,6 +1,6 @@
 import type { BuildOptions, Rollup } from "vite";
-import type { SiteConfig } from "../siteConfig";
-import type { HeadConfig } from "./render";
+import type { HeadConfig } from "./render.js";
+import type { Config } from "../type.js";
 
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -9,32 +9,36 @@ import fs from "fs-extra";
 import pMap from "p-map";
 import { rimraf } from "rimraf";
 import { glob } from "tinyglobby";
-import { slash } from "../../client/shared";
-import { task } from "../utils/task";
+import { slash } from "../../client/shared.js";
+import { task } from "../utils/task.js";
 import {
   deserializeFunctions,
   serializeFunctions,
-} from "../utils/fn-serialize";
-import { resolveConfig } from "../config";
-import { bundle } from "./bundle";
-import { renderPage } from "./render";
+} from "../utils/fn-serialize.js";
+import { resolveConfig } from "../config.js";
+import { runHookConfigDone, runHookConfigSetup } from "../integration.js";
+import { bundle } from "./bundle.js";
+import { renderPage } from "./render.js";
 
 export async function build(
   root?: string,
   buildOptions: BuildOptions & { base?: string } = {}
 ) {
-  const config = await resolveConfig(root, "build", "production");
+  let config = await resolveConfig(root, "build", "production");
+  config = await runHookConfigSetup(config, config.logger);
 
   if (buildOptions.base) {
-    config.basePath = buildOptions.base;
-    delete buildOptions.base;
+    config.base = buildOptions.base;
+    buildOptions.base = undefined;
   }
   if (buildOptions.outDir) {
     config.distDir = path.resolve(process.cwd(), buildOptions.outDir);
-    delete buildOptions.outDir;
+    buildOptions.outDir = undefined;
   }
 
-  const pages = await resolvePages(config.pageDir);
+  await runHookConfigDone(config, config.logger);
+
+  const pages = await resolvePages(config);
 
   try {
     const { clientResult, pageToHashMap } = await bundle(
@@ -59,14 +63,14 @@ export async function build(
             chunk.isEntry &&
             chunk.facadeModuleId?.endsWith(".js")
         ) as Rollup.OutputChunk);
-      const cssChunk = clientResult!.output.find(
+      const cssChunk = clientResult.output.find(
         (chunk) => chunk.type === "asset" && chunk.fileName.endsWith(".css")
       ) as Rollup.OutputAsset;
-      const assets = clientResult!.output
+      const assets = clientResult.output
         .filter(
           (chunk) => chunk.type === "asset" && !chunk.fileName.endsWith(".css")
         )
-        .map((asset) => config.basePath + asset.fileName);
+        .map((asset) => config.base + asset.fileName);
 
       const additionalHeadTags: HeadConfig[] = [];
 
@@ -100,24 +104,22 @@ export async function build(
     }
   }
 
-  config.logger.info(`build complete`);
+  config.logger.info("build complete");
 }
 
-async function resolvePages(pagesDir: string): Promise<string[]> {
-  const allPages = (
-    await glob(["**/page.{js,jsx,ts,tsx,vue}"], {
-      cwd: pagesDir,
-      ignore: ["**/node_modules/**", "**/dist/**"],
+async function resolvePages(config: Config) {
+  return (
+    await glob([`**/page{${config.pageExtensions.join(",")}}`], {
+      cwd: config.pageDir,
+      ignore: ["**/node_modules/**", `**/${config.distDir}/**`],
       expandDirectories: false,
     })
   ).sort();
-
-  return allPages;
 }
 
 function generateMetadataScript(
   pageToHashMap: Record<string, string>,
-  config: SiteConfig
+  config: Config
 ) {
   const hashMapString = JSON.stringify(JSON.stringify(pageToHashMap));
   const siteDataString = JSON.stringify(
@@ -140,7 +142,7 @@ function generateMetadataScript(
   );
 
   const resolvedMetadataFile = path.join(config.distDir, metadataFile);
-  const metadataFileURL = slash(`${config.basePath}${metadataFile}`);
+  const metadataFileURL = slash(`${config.base}${metadataFile}`);
 
   fs.ensureDirSync(path.dirname(resolvedMetadataFile));
   fs.writeFileSync(resolvedMetadataFile, metadataContent);

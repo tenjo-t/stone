@@ -6,9 +6,9 @@ import {
   h,
   defineComponent,
 } from "vue";
-import { inBrowser } from "../shared";
-import { createRouter, RouterSymbol, useRoute } from "./router";
-import { pathToFile } from "./utils";
+import { inBrowser } from "../shared.js";
+import { createRouter, RouterSymbol, useRoute } from "./router.js";
+import { pathToFile } from "./utils.js";
 
 const StoneApp = defineComponent({
   name: "StoneApp",
@@ -28,27 +28,15 @@ function newApp(): App {
 }
 
 function newRouter() {
-  let isInitialPageLoad = inBrowser;
-  let initialPath: string;
+  // let isInitialPageLoad = inBrowser;
+  // let initialPath: string;
 
   return createRouter((path) => {
-    let pageFilePath = pathToFile(path);
+    const pageFilePath = pathToFile(path);
     let pageModule = null;
 
     if (pageFilePath) {
-      if (isInitialPageLoad) {
-        initialPath = pageFilePath;
-      }
-
-      if (isInitialPageLoad || initialPath === pageFilePath) {
-        pageFilePath = pageFilePath.replace(/\.js$/, "lean.js");
-      }
-
       pageModule = import(/* @vite-ignore */ pageFilePath);
-    }
-
-    if (inBrowser) {
-      isInitialPageLoad = false;
     }
 
     return pageModule;

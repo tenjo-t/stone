@@ -1,5 +1,5 @@
-import { EXTERNAL_URL_RE, inBrowser, sanitizeFileName } from "../shared";
-import { siteDataRef } from "./data";
+import { EXTERNAL_URL_RE, inBrowser, sanitizeFileName } from "../shared.js";
+import { siteDataRef } from "./data.js";
 
 export function joinPath(base: string, path: string): string {
   return `${base}${path}`.replaceAll(/\/+/g, "/");
@@ -12,7 +12,7 @@ export function withBase(path: string): string {
 }
 
 export function pathToFile(path: string): string | null {
-  let pagePath = path.replace(/index\.html$/, "/");
+  let pagePath = path.replace(/\/index\.html$/, "/");
   pagePath = pagePath.replace(/\.html$/, "/");
   pagePath = decodeURIComponent(pagePath);
   if (/\/$/.test(pagePath)) {
@@ -25,11 +25,11 @@ export function pathToFile(path: string): string | null {
     pagePath += `.js?t=${Date.now()}`;
   } else if (inBrowser) {
     const base = import.meta.env.BASE_URL;
-    pagePath =
-      sanitizeFileName(pagePath.slice(base.length).replaceAll("/", "_")) +
-      ".js";
+    pagePath = sanitizeFileName(
+      pagePath.slice(base.length).replaceAll("/", "_")
+    );
 
-    let pageHash = __STONE_HASH_MAP__[pagePath.toLowerCase()];
+    const pageHash = __STONE_HASH_MAP__[pagePath.toLowerCase()];
     if (!pageHash) return null;
     pagePath = `${base}${__ASSETS_DIR__}/${pagePath}.${pageHash}.js`;
   } else {

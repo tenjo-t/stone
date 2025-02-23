@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import type { SiteData } from "../shared";
+import type { SiteData } from "../shared.js";
 
 import { shallowRef } from "vue";
 

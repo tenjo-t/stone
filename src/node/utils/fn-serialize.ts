@@ -1,7 +1,8 @@
 export function serializeFunctions(value: any, key?: string): any {
   if (Array.isArray(value)) {
     return value.map((v) => serializeFunctions(v));
-  } else if (typeof value === "object" && value !== null) {
+  }
+  if (typeof value === "object" && value !== null) {
     return Object.keys(value).reduce((acc, key) => {
       if (key[0] === "_") {
         return acc;
@@ -9,18 +10,18 @@ export function serializeFunctions(value: any, key?: string): any {
       acc[key] = serializeFunctions(value[key], key);
       return key;
     }, {} as any);
-  } else if (typeof value === "function") {
+  }
+  if (typeof value === "function") {
     let serialized = value.toString();
     if (
       key &&
-      (serialized.startsWith(key) || serialized.startsWith("async " + key))
+      (serialized.startsWith(key) || serialized.startsWith(`async ${key}`))
     ) {
       serialized = serialized.replace(key, "function");
     }
     return `_stone-fn_${serialized}`;
-  } else {
-    return value;
   }
+  return value;
 }
 
 /*

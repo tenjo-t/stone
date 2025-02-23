@@ -5,7 +5,7 @@ import fs from "fs-extra";
 import polka from "polka";
 import sirv from "sirv";
 import compression from "@polka/compression";
-import { resolveConfig } from "../config";
+import { resolveConfig } from "../config.js";
 
 export interface ServeOptions {
   base?: string;
@@ -28,7 +28,7 @@ function trimChar(str: string, char: string): string {
 export async function serve(options: ServeOptions) {
   const port = options.port ?? 4173;
   const config = await resolveConfig(options.root, "serve", "production");
-  const base = trimChar(options.base ?? config.basePath ?? "", "/");
+  const base = trimChar(options.base ?? config.base ?? "", "/");
 
   const notAnAsset = (pathname: string) => !pathname.includes("/assets/");
   // const notFound = fs.readFileSync(path.resolve(config.distDir, "404.html"));
@@ -61,11 +61,10 @@ export async function serve(options: ServeOptions) {
           `Built site served at http://localhost:${port}/${base}`
         );
       });
-  } else {
-    return polka({ onNoMatch })
-      .use(compress, serve)
-      .listen(port, () => {
-        config.logger.info(`Built site served at http://localhost:${port}/`);
-      });
   }
+  return polka({ onNoMatch })
+    .use(compress, serve)
+    .listen(port, () => {
+      config.logger.info(`Built site served at http://localhost:${port}/`);
+    });
 }

@@ -2,9 +2,9 @@
 
 import minimist from "minimist";
 import { createLogger } from "vite";
-import { createServer, build } from ".";
 import { version } from "../../package.json";
-import { serve } from "./serve/serve";
+import { createServer, build } from "./index.js";
+import { serve } from "./serve/serve.js";
 
 function logVersion(logger = createLogger()) {
   logger.info(`\n  v${version}\n`, { clear: !logger.hasWarned });

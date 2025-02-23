@@ -1,9 +1,10 @@
-import type { UserConfig, SiteConfig } from "./siteConfig";
+import type { UserConfig, Config } from "type.js";
 
-import { resolve } from "node:path";
 import fs from "node:fs";
+import { resolve } from "node:path";
 import _debug from "debug";
 import { createLogger, loadConfigFromFile, normalizePath } from "vite";
+import vue from "./integrations/vue.js";
 
 const debug = _debug("stone:config");
 
@@ -13,11 +14,11 @@ export async function resolveConfig(
   root = process.cwd(),
   command: "serve" | "build" = "serve",
   mode = "development"
-): Promise<SiteConfig> {
-  root = normalizePath(resolve(root));
+): Promise<Config> {
+  const rootPath = normalizePath(resolve(root));
 
   const [userConfig, configPath, configDeps] = await resolveUserConfig(
-    root,
+    rootPath,
     command,
     mode
   );
@@ -30,25 +31,33 @@ export async function resolveConfig(
     });
   // const site = await resolveSiteData(root, userConfig);
   const pageDir = userConfig.pageDir
-    ? normalizePath(resolve(root, userConfig.pageDir))
-    : resolve(root, "pages");
+    ? normalizePath(resolve(rootPath, userConfig.pageDir))
+    : resolve(rootPath, "pages");
   const distDir = userConfig.distDir
-    ? normalizePath(resolve(root, userConfig.distDir))
-    : resolve(root, "build");
+    ? normalizePath(resolve(rootPath, userConfig.distDir))
+    : resolve(rootPath, "build");
 
   const config = {
-    root,
-    configPath,
-    configDeps,
+    site: userConfig.site,
+    base: userConfig.base ?? "/",
+
+    root: rootPath,
     pageDir,
     distDir,
-    tempDir: normalizePath(resolve(root, ".temp")),
+    tempDir: normalizePath(resolve(rootPath, ".temp")),
 
-    basePath: userConfig.basePath ?? "/",
+    ui: userConfig.ui ?? vue(),
+    integrations: userConfig.integrations ?? [],
+
+    clientEntrypoint: "",
+    serverEntrypoint: "",
+    pageExtensions: [".js"],
+    vite: userConfig.vite,
+
+    configPath,
+    configDeps,
 
     logger,
-
-    vite: userConfig.vite,
   };
 
   return config;
@@ -60,7 +69,7 @@ export async function resolveUserConfig(
   mode: string
 ): Promise<[UserConfig, string | undefined, string[]]> {
   const configPath = supportedConfigExtensions
-    .map((ext) => `config.${ext}`)
+    .map((ext) => `stone.config.${ext}`)
     .find(fs.existsSync);
 
   if (!configPath) {

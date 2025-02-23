@@ -9,7 +9,6 @@ const require = createRequire(import.meta.url);
 const pkg = require("./package.json");
 
 const DEV = !!process.env.DEV;
-const PROD = !DEV;
 
 const external = [
   ...Object.keys(pkg.dependencies),

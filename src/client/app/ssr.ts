@@ -1,7 +1,7 @@
-import type { SSGContext } from "../shared";
+import type { SSGContext } from "../shared.js";
 
 import { renderToString } from "vue/server-renderer";
-import { createApp } from "./index";
+import { createApp } from "./index.js";
 
 export async function render(path: string): Promise<SSGContext> {
   const { app, router } = await createApp();

@@ -1,10 +1,10 @@
 import type { Component, InjectionKey } from "vue";
-import type { Awaitable, PageData } from "../shared";
+import type { Awaitable, PageData } from "../shared.js";
 
 import { inject, markRaw, nextTick, reactive, readonly } from "vue";
-import { inBrowser, notFoundPageData, treatAsHtml } from "../shared";
-import { siteDataRef } from "./data";
-import { getScrollOffset, withBase } from "./utils";
+import { inBrowser, notFoundPageData, treatAsHtml } from "../shared.js";
+import { siteDataRef } from "./data.js";
+import { getScrollOffset, withBase } from "./utils.js";
 
 interface PageModule {
   __pageData: PageData;
@@ -57,11 +57,11 @@ export function createRouter(
   let latestPendingPath: string | null = null;
 
   async function loadPage(href: string, scrollPosition = 0, isRetry = false) {
-    if ((await router.onBeforePageLoad?.(href)) == false) return;
+    if ((await router.onBeforePageLoad?.(href)) === false) return;
     const targetLoc = new URL(href, "http://a.com");
     const pendingPath = (latestPendingPath = targetLoc.pathname);
     try {
-      let page = await loadPageModule(pendingPath);
+      const page = await loadPageModule(pendingPath);
       if (!page) {
         throw new Error(`Page not found: ${pendingPath}`);
       }
@@ -208,7 +208,7 @@ export function createRouter(
       }
       await loadPage(
         normalizeHref(location.href),
-        (e.state && e.state.scrollPosition) || 0
+        e.state?.scrollPosition || 0
       );
       router.onAfterRouteChanged?.(location.href);
     });
@@ -233,7 +233,7 @@ export function scrollTo(el: Element, hash: string, smooth = true) {
   }
 
   if (target) {
-    const targetPending = parseInt(
+    const targetPending = Number.parseInt(
       window.getComputedStyle(target).paddingTop,
       10
     );

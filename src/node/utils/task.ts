@@ -5,7 +5,7 @@ export const failMark = "\x1b[31m✖\x1b[0m";
 
 export async function task(taskName: string, task: () => Promise<void>) {
   const spinner = ora({ discardStdin: false });
-  spinner.start(taskName + "...");
+  spinner.start(`${taskName}...`);
 
   try {
     await task();
