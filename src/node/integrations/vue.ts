@@ -45,9 +45,10 @@ async function getViteConfig(
 
     load(id) {
       let entry: string;
+      id = normalizePath(id);
       if (id.startsWith("\0stone:") && id.endsWith("/page.vue")) {
         entry = id.slice(7);
-      } else if (normalizePath(id).endsWith("/page.js")) {
+      } else if (id.endsWith("/page.js")) {
         entry = dev
           ? path.resolve(pageDir, `.${id.replace(/\.js$/, ".vue")}`)
           : id.replace(/\.js$/, ".vue");
