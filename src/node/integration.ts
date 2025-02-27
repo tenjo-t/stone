@@ -19,7 +19,7 @@ export async function runHookConfigSetup(config: Config, logger: Logger) {
       const options: IntegrationConfigSetupOptions = {
         config,
         updateViteConfig: (newConfig) => {
-          updatedConfig = mergeConfig(config, newConfig) as ViteConfig;
+          updatedConfig = mergeConfig(updatedConfig, newConfig) as ViteConfig;
           return { ...updatedConfig };
         },
         addRender: (render) => {
