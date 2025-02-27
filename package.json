@@ -8,13 +8,19 @@
   "bin": {
     "stone": "./dist/node/cli.js"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/node/index.js",
+      "types": "./dist/node/index.d.ts"
+    }
+  },
   "scripts": {
     "dev": "rimraf dist && pnpm --stream \"/^dev:(client|node)$/\"",
     "dev:client": "tsc --sourcemap -w --preserveWatchOutput -p src/client",
-    "dev:node": "pnpm run build:node -w",
+    "dev:node": "pnpm run build:node --watch",
     "build": "rimraf dist && pnpm build:client && pnpm build:node",
     "build:client": "tsc -p src/client",
-    "build:node": "rollup --config rollup.config.ts --configPlugin esbuild",
+    "build:node": "tsup-node",
     "docs": "pnpm --stream \"/^(docs:)?dev$/\"",
     "docs:dev": "wait-on -d 100 dist/node/cli.js && pnpm -F=docs dev",
     "docs:build": "pnpm build && pnpm docs:build:only",
@@ -31,7 +37,6 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@polka/compression": "^1.0.0-next.28",
-    "@rollup/plugin-json": "^6.1.0",
     "@types/debug": "^4.1.12",
     "@types/fs-extra": "^11.0.4",
     "@types/minimist": "^1.2.5",
@@ -44,10 +49,9 @@
     "polka": "^1.0.0-next.28",
     "prettier": "^3.4.1",
     "rimraf": "^6.0.1",
-    "rollup": "^4.32.0",
-    "rollup-plugin-esbuild": "^6.1.1",
     "sirv": "^3.0.0",
     "tinyglobby": "^0.2.10",
+    "tsup": "^8.4.0",
     "typescript": "^5.7.3",
     "wait-on": "^8.0.2"
   },

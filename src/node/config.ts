@@ -1,4 +1,4 @@
-import type { UserConfig, Config } from "type.js";
+import type { UserConfig, Config } from "./type.js";
 
 import fs from "node:fs";
 import { resolve } from "node:path";

@@ -132,9 +132,9 @@ function generateMetadataScript(
       : `window.__STONE_SITE_DATA__=JSON.parse(${siteDataString});`
   }`;
 
-  if (!config.metaChunk) {
-    return { html: `<script>${metadataContent}</script>`, inHead: false };
-  }
+  // if (!config.metaChunk) {
+  //   return { html: `<script>${metadataContent}</script>`, inHead: false };
+  // }
 
   const metadataFile = path.join(
     "assets/chunks",
